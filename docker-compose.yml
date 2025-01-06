@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17.2-alpine
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: company_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - myapp_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: golang_backend
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=admin
+      - DB_PASSWORD=password
+      - DB_NAME=company_db
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db  # Pastikan aplikasi bergantung pada PostgreSQL
+    networks:
+      - myapp_network
+
+volumes:
+  postgres_data:
+
+networks:
+  myapp_network:
+    driver: bridge
+
+#version: '3.8'
+#
+#services:
+#  db:
+#    image: postgres:17.2-alpine
+#    container_name: postgres_container
+#    environment:
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: password
+#      POSTGRES_DB: company_db
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    networks:
+#      - myapp_network
+#
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: golang_backend
+#    environment:
+#      - DB_HOST=db
+#      - DB_PORT=5432
+#      - DB_USER=admin
+#      - DB_PASSWORD=password
+#      - DB_NAME=company_db
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - db
+#    networks:
+#      - myapp_network
+#
+#volumes:
+#  postgres_data:
+#
+#networks:
+#  myapp_network:
+#    driver: bridge
+
+
+#version: '3.8'
+#
+#services:
+#  postgres:
+#    image: postgres:17.2
+#    container_name: postgres_db
+#    restart: always
+#    env_file:
+#      - .env
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_DB: ${POSTGRES_DB}
+#    ports:
+#      - "${POSTGRES_PORT}:5432"
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#
+#  app:
+#    build: .
+#    container_name: golang_app
+#    depends_on:
+#      - postgres
+#    env_file:
+#      - .env
+#    environment:
+#      DB_HOST: ${POSTGRES_HOST}
+#      DB_USER: ${POSTGRES_USER}
+#      DB_PASSWORD: ${POSTGRES_PASSWORD}
+#      DB_NAME: ${POSTGRES_DB}
+#      DB_PORT: ${POSTGRES_PORT}
+#    ports:
+#      - "${APP_PORT}:8080"
+#    command: ["/app/main"]
+#
+#volumes:
+#  postgres_data:
