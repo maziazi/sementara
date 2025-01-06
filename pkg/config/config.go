@@ -15,15 +15,12 @@ type Config struct {
 	DBSSLMode  string
 }
 
-// LoadEnv memuat file .env dan mengembalikan konfigurasi aplikasi
 func LoadEnv() *Config {
-	// Memuat file .env
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
-	// Mengambil variabel lingkungan dari file .env
 	return &Config{
 		DBHost:     os.Getenv("DB_HOST"),
 		DBPort:     os.Getenv("DB_PORT"),

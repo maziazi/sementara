@@ -7,5 +7,7 @@ import (
 )
 
 func RegisterDepartmentRoutes(router *mux.Router) {
-	router.HandleFunc("/departements", handler.CreateDepartmentHandler).Methods(http.MethodPost)
+	routes := "/departments"
+	router.HandleFunc(routes, handler.CreateDepartmentHandler).Methods(http.MethodPost)
+	router.HandleFunc(routes, handler.GetDepartments).Methods(http.MethodGet)
 }
