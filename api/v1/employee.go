@@ -9,11 +9,9 @@ import (
 func RegisterEmployeeRoutes(router *gin.RouterGroup) {
 
 	protected := router.Group("/employee")
-	protected.Use(middleware.JWTAuthMiddleware()) // Gunakan middleware JWT
+	protected.Use(middleware.JWTAuthMiddleware())
 	router.Group("/employee").GET("/", handler.GetEmployeeHandler)
 	{
-		//protected.GET("/", handler.)      // Ambil profil user
-		// Update profil user
 		protected.POST("/", handler.CreateEmployeeHandler)
 	}
 }

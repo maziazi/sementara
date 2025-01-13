@@ -6,6 +6,7 @@ import (
 	"project_sprint/internal/model"
 	"project_sprint/internal/utils"
 	"project_sprint/pkg/database"
+	"strconv"
 )
 
 func CreateDepartment(dept model.Department) (model.Department, error) {
@@ -28,21 +29,20 @@ func CreateDepartment(dept model.Department) (model.Department, error) {
 }
 
 func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, error) {
-	// Query dasar
-	query := `SELECT department_id, name FROM department`
-	args := []interface{}{}
 
-	// Jika ada filter nama, tambahkan kondisi WHERE
+	query := `SELECT department_id, name FROM department`
+	var args []interface{}
+	argIndex := 1
+
 	if nameFilter != "" {
-		query += ` WHERE LOWER(name) LIKE LOWER($1)`
-		args = append(args, "%"+nameFilter+"%") // LIKE %abc% (prefix & suffix)
+		query += ` WHERE name ILIKE $1`
+		args = append(args, "%"+nameFilter+"%")
+		argIndex++
 	}
 
-	// Tambahkan limit & offset
-	query += ` LIMIT $2 OFFSET $3`
+	query += ` LIMIT $` + strconv.Itoa(argIndex) + ` OFFSET $` + strconv.Itoa(argIndex+1)
 	args = append(args, limit, offset)
 
-	// Eksekusi query
 	rows, err := database.GetDBPool().Query(context.Background(), query, args...)
 	if err != nil {
 		log.Println("Error querying departments:", err)
@@ -50,7 +50,6 @@ func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, e
 	}
 	defer rows.Close()
 
-	// Parsing hasil query
 	var departments []model.Department
 	for rows.Next() {
 		var dept model.Department
@@ -63,57 +62,34 @@ func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, e
 
 	return departments, nil
 }
-func IsDepartmentValid(departmentId int) bool {
+
+func PatchDepartment(id int, dept model.Department) (*model.Department, error) {
 	db := database.GetDBPool()
 
-	var departmentName string
-	// Melakukan query untuk mencari department dengan ID yang diberikan
-	err := db.QueryRow(context.Background(), "SELECT name FROM department WHERE department_id = $1", departmentId).Scan(&departmentName)
+	query := `UPDATE department SET name = $1 WHERE department_id = $2 RETURNING department_id, name`
+	row := db.QueryRow(context.Background(), query, dept.Name, id)
 
-	// Jika department ditemukan (query berhasil), maka departmentId valid
-	if err == nil {
-		return true
+	var updatedDept model.Department
+	err := row.Scan(&updatedDept.DepartmentID, &updatedDept.Name)
+	if err != nil {
+		return nil, err
 	}
 
-	// Jika department tidak ditemukan (query gagal), maka departmentId tidak valid
-	return false
+	return &updatedDept, nil
 }
 
-//func DeleteDepartment(dept model.Department) error {
-//	query := `DELETE FROM departments WHERE id=$1`
-//	var deptId int
+//func IsDepartmentValid(departmentId string) bool {
+//	db := database.GetDBPool()
 //
-//	err := database.DB.QueryRow(context.Background(), query, dept.DepartmentID).Scan(&deptId)
+//	var departmentName string
+//	// Melakukan query untuk mencari department dengan ID yang diberikan
+//	err := db.QueryRow(context.Background(), "SELECT name FROM department WHERE department_id = $1", departmentId).Scan(&departmentName)
 //
-//	if err != nil {
-//		return err
-//	}
-//	return model.Department{}
-//}
-
-//func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, error) {
-//	query := `SELECT id, name FROM departments WHERE name ILIKE $1 ORDER BY id LIMIT $2 OFFSET $3`
-//	var departments []model.Department
-//
-//	// Tambahkan wildcard (%) untuk prefix dan suffix search
-//	searchPattern := "%" + strings.ToLower(nameFilter) + "%"
-//
-//	rows, err := database.DB.Query(context.Background(), query, searchPattern, limit, offset)
-//	if err != nil {
-//		log.Println("Error querying departments:", err)
-//		return nil, err
-//	}
-//	defer rows.Close()
-//
-//	// Loop hasil query
-//	for rows.Next() {
-//		var dept model.Department
-//		if err := rows.Scan(&dept.DepartmentID, &dept.Name); err != nil {
-//			log.Println("Error scanning department:", err)
-//			return nil, err
-//		}
-//		departments = append(departments, dept)
+//	// Jika department ditemukan (query berhasil), maka departmentId valid
+//	if err == nil {
+//		return true
 //	}
 //
-//	return departments, nil
+//	// Jika department tidak ditemukan (query gagal), maka departmentId tidak valid
+//	return false
 //}

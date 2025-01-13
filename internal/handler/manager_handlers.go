@@ -78,14 +78,13 @@ func GetUserProfileHandler(c *gin.Context) {
 
 }
 
-// UpdateUserProfileHandler untuk memperbarui profil user
 func UpdateUserProfileHandler(c *gin.Context) {
 	var req struct {
-		Email           string `json:"email" binding:"omitempty,email"`              // Optional, harus dalam format email
-		Name            string `json:"name" binding:"omitempty,min=4,max=52"`        // Optional, minimal 4 karakter, maksimal 52 karakter
-		UserImageUri    string `json:"userImageUri" binding:"omitempty,uri"`         // Optional, harus dalam format URI
-		CompanyName     string `json:"companyName" binding:"omitempty,min=4,max=52"` // Optional, minimal 4 karakter, maksimal 52 karakter
-		CompanyImageUri string `json:"companyImageUri" binding:"omitempty,uri"`      // Optional, harus dalam format URI
+		Email           string `json:"email" binding:"omitempty,email"`
+		Name            string `json:"name" binding:"omitempty,min=4,max=52"`
+		UserImageUri    string `json:"userImageUri" binding:"omitempty,uri"`
+		CompanyName     string `json:"companyName" binding:"omitempty,min=4,max=52"`
+		CompanyImageUri string `json:"companyImageUri" binding:"omitempty,uri"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

@@ -3,18 +3,24 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"project_sprint/internal/handler"
+	"project_sprint/internal/middleware"
 )
 
-// RegisterDepartmentRoutes mendaftarkan endpoint Department
 func RegisterDepartmentRoutes(router *gin.RouterGroup) {
-	departmentGroup := router.Group("/departments")
+
+	/*TODO(
+		AUTH UNTUK DEPARTMENT
+		POST
+	GET
+	PATCH
+	DELETE)
+
+	*/
+	router.Group("/department").GET("/", handler.GetDepartments)
+	protected := router.Group("/department")
+	protected.Use(middleware.JWTAuthMiddleware())
 	{
-		departmentGroup.POST("/", handler.CreateDepartmentHandler)
-		departmentGroup.GET("/", handler.GetDepartments)
+		protected.POST("/", handler.CreateDepartmentHandler)
+		protected.PATCH("/:id", handler.PatchDepartment)
 	}
 }
-
-//func RegisterDepartmentRoutes(router *mux.Router) {
-//	router.HandleFunc("/departements", handler.CreateDepartmentHandler).Methods(http.MethodPost)
-//	router.HandleFunc("/departements", handler.GetDepartments).Methods(http.MethodGet)
-//}
