@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"project_sprint/internal/model"
 	"project_sprint/internal/service"
@@ -11,61 +9,49 @@ import (
 	"strconv"
 )
 
-func CreateDepartmentHandler(w http.ResponseWriter, r *http.Request) {
+func CreateDepartmentHandler(c *gin.Context) {
 	var dept model.Department
 
-	if err := json.NewDecoder(r.Body).Decode(&dept); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	if err := c.ShouldBindJSON(&dept); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	err := utils.ValidateDepartment(dept.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation error: " + err.Error()})
 		return
 	}
 
 	department, err := service.CreateDepartment(dept)
-	err = utils.ValidateDepartment(department.Name)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Validation error: %s", err.Error()), http.StatusBadRequest)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create department" + err.Error()})
 		return
 	}
 
-	response := department
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	c.JSON(http.StatusCreated, department)
 }
 
-func GetDepartments(w http.ResponseWriter, r *http.Request) {
-	// Middleware auth (tambahkan jika ada)
-	//token := r.Header.Get("Authorization")
-	//if token == "" {
-	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
-	//	return
-	//}
+func GetDepartments(c *gin.Context) {
+	limitStr := c.Query("limit")
+	offsetStr := c.Query("offset")
+	nameFilter := c.Query("name")
 
-	// Ambil query params
-	limitStr := r.URL.Query().Get("limit")
-	offsetStr := r.URL.Query().Get("offset")
-	nameFilter := r.URL.Query().Get("name")
-
-	// Konversi limit & offset ke integer, gunakan default jika tidak valid
 	limit, err := strconv.Atoi(limitStr)
 	if err != nil || limit <= 0 {
-		limit = 5 // Default limit
+		limit = 5
 	}
 
 	offset, err := strconv.Atoi(offsetStr)
 	if err != nil || offset < 0 {
-		offset = 0 // Default offset
+		offset = 0
 	}
 
-	// Panggil service untuk mendapatkan data department
 	departments, err := service.GetDepartments(limit, offset, nameFilter)
 	if err != nil {
-		log.Println("Error fetching departments:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
-	// Kirim response JSON
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(departments)
+	c.JSON(http.StatusOK, departments)
 }

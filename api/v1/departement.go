@@ -1,13 +1,20 @@
 package v1
 
 import (
-	"github.com/gorilla/mux"
-	"net/http"
+	"github.com/gin-gonic/gin"
 	"project_sprint/internal/handler"
 )
 
-func RegisterDepartmentRoutes(router *mux.Router) {
-	routes := "/departments"
-	router.HandleFunc(routes, handler.CreateDepartmentHandler).Methods(http.MethodPost)
-	router.HandleFunc(routes, handler.GetDepartments).Methods(http.MethodGet)
+// RegisterDepartmentRoutes mendaftarkan endpoint Department
+func RegisterDepartmentRoutes(router *gin.RouterGroup) {
+	departmentGroup := router.Group("/departments")
+	{
+		departmentGroup.POST("/", handler.CreateDepartmentHandler)
+		departmentGroup.GET("/", handler.GetDepartments)
+	}
 }
+
+//func RegisterDepartmentRoutes(router *mux.Router) {
+//	router.HandleFunc("/departements", handler.CreateDepartmentHandler).Methods(http.MethodPost)
+//	router.HandleFunc("/departements", handler.GetDepartments).Methods(http.MethodGet)
+//}

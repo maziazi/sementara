@@ -13,10 +13,10 @@ func CreateDepartment(dept model.Department) (model.Department, error) {
 	if err := utils.ValidateDepartment(dept.Name); err != nil {
 		return model.Department{}, err
 	}
-	query := `INSERT INTO departments (name) VALUES ($1) RETURNING id`
+	query := `INSERT INTO department (name) VALUES ($1) RETURNING department_id`
 	var deptID int
 
-	err := database.DB.QueryRow(context.Background(), query, dept.Name).Scan(&deptID)
+	err := database.GetDBPool().QueryRow(context.Background(), query, dept.Name).Scan(&deptID)
 	if err != nil {
 		return model.Department{}, err
 	}
@@ -29,7 +29,7 @@ func CreateDepartment(dept model.Department) (model.Department, error) {
 
 func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, error) {
 	// Query dasar
-	query := `SELECT id, name FROM departments`
+	query := `SELECT department_id, name FROM department`
 	args := []interface{}{}
 
 	// Jika ada filter nama, tambahkan kondisi WHERE
@@ -43,7 +43,7 @@ func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, e
 	args = append(args, limit, offset)
 
 	// Eksekusi query
-	rows, err := database.DB.Query(context.Background(), query, args...)
+	rows, err := database.GetDBPool().Query(context.Background(), query, args...)
 	if err != nil {
 		log.Println("Error querying departments:", err)
 		return nil, err
@@ -62,6 +62,21 @@ func GetDepartments(limit, offset int, nameFilter string) ([]model.Department, e
 	}
 
 	return departments, nil
+}
+func IsDepartmentValid(departmentId int) bool {
+	db := database.GetDBPool()
+
+	var departmentName string
+	// Melakukan query untuk mencari department dengan ID yang diberikan
+	err := db.QueryRow(context.Background(), "SELECT name FROM department WHERE department_id = $1", departmentId).Scan(&departmentName)
+
+	// Jika department ditemukan (query berhasil), maka departmentId valid
+	if err == nil {
+		return true
+	}
+
+	// Jika department tidak ditemukan (query gagal), maka departmentId tidak valid
+	return false
 }
 
 //func DeleteDepartment(dept model.Department) error {
