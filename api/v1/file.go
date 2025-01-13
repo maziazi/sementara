@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterFileRoutes(router *gin.RouterGroup) {
-
+	//TODO FILE BELUM DIKASIH PROTECTION
 	router.POST("/files", handler.UploadFileHandler)
 	router.GET("/files/:id", handler.GetFileHandler)
 	router.DELETE("/files/:id", handler.DeleteFileHandler)

@@ -22,10 +22,10 @@ func CreateEmployeeHandler(c *gin.Context) {
 		return
 	}
 
-	if !service.IsDepartmentValid(req.DepartmentId) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid departmentId"})
-		return
-	}
+	//if !service.IsDepartmentValid(req.DepartmentId) {
+	//	c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid departmentId"})
+	//	return
+	//}
 
 	employee, err := service.CreateEmployee(req.IdentityNumber, req.Name, req.EmployeeImageUri, req.Gender, req.DepartmentId)
 	if err != nil {

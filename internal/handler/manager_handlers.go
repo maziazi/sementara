@@ -78,15 +78,15 @@ func GetUserProfileHandler(c *gin.Context) {
 
 }
 
-// UpdateUserProfileHandler untuk memperbarui profil user
 func UpdateUserProfileHandler(c *gin.Context) {
 	var req struct {
-		Email           string `json:"email" binding:"omitempty,email"`              // Optional, harus dalam format email
-		Name            string `json:"name" binding:"omitempty,min=4,max=52"`        // Optional, minimal 4 karakter, maksimal 52 karakter
-		UserImageUri    string `json:"userImageUri" binding:"omitempty,uri"`         // Optional, harus dalam format URI
-		CompanyName     string `json:"companyName" binding:"omitempty,min=4,max=52"` // Optional, minimal 4 karakter, maksimal 52 karakter
-		CompanyImageUri string `json:"companyImageUri" binding:"omitempty,uri"`      // Optional, harus dalam format URI
+		Email           string `json:"email" binding:"omitempty,email"`
+		Name            string `json:"name" binding:"omitempty,min=4,max=52"`
+		UserImageUri    string `json:"userImageUri" binding:"omitempty,uri"`
+		CompanyName     string `json:"companyName" binding:"omitempty,min=4,max=52"`
+		CompanyImageUri string `json:"companyImageUri" binding:"omitempty,uri"`
 	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -99,23 +99,36 @@ func UpdateUserProfileHandler(c *gin.Context) {
 	}
 
 	userIDInt, ok := userID.(int)
-	fmt.Println(ok)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID format"})
 		return
 	}
 
-	user, err := service.UpdateUserProfile(userIDInt, req.Email, req.Name, req.UserImageUri, req.CompanyName, req.CompanyImageUri)
+	toPtr := func(s string) *string {
+		if s == "" {
+			return nil
+		}
+		return &s
+	}
+
+	updatedUser, err := service.UpdateUserProfile(
+		userIDInt,
+		toPtr(req.Email),
+		toPtr(req.Name),
+		toPtr(req.UserImageUri),
+		toPtr(req.CompanyName),
+		toPtr(req.CompanyImageUri),
+	)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"email":           user.Email,
-		"name":            user.Name,
-		"userImageUri":    user.ManagerImageURI,
-		"companyName":     user.CompanyName,
-		"companyImageUri": user.CompanyImageURI,
+		"email":           updatedUser.Email,
+		"name":            updatedUser.Name,
+		"userImageUri":    updatedUser.ManagerImageURI,
+		"companyName":     updatedUser.CompanyName,
+		"companyImageUri": updatedUser.CompanyImageURI,
 	})
 }

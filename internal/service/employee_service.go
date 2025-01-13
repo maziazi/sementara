@@ -6,21 +6,20 @@ import (
 	"project_sprint/internal/model"
 	"project_sprint/pkg/database"
 	_ "project_sprint/pkg/database"
-	"strconv"
 )
 
 // Fungsi service untuk membuat employee baru
 func CreateEmployee(identityNumber, name, employeeImageUri, gender, departmentId string) (*model.Employee, error) {
-	// Cek apakah departmentId valid
-	var str, _ = strconv.Atoi(departmentId)
-	if !IsDepartmentValid(str) {
-		return nil, fmt.Errorf("invalid departmentId")
-	}
-
-	// Simpan employee ke database
-	// Implementasi menyimpan employee (ini contoh, disesuaikan dengan database Anda)
-	// Biasanya menggunakan db.Exec atau db.QueryRow untuk insert dan mendapatkan ID baru
-	// Misalnya, kita bisa membuat query seperti ini:
+	//// Cek apakah departmentId valid
+	//var str, _ = strconv.Atoi(departmentId)
+	//if !IsDepartmentValid(str) {
+	//	return nil, fmt.Errorf("invalid departmentId")
+	//}
+	//
+	//// Simpan employee ke database
+	//// Implementasi menyimpan employee (ini contoh, disesuaikan dengan database Anda)
+	//// Biasanya menggunakan db.Exec atau db.QueryRow untuk insert dan mendapatkan ID baru
+	//// Misalnya, kita bisa membuat query seperti ini:
 	_, err := database.GetDBPool().
 		Exec(context.Background(), "INSERT INTO employees (identitynumber, name, employee_image_uri, gender, departement_id) VALUES ($1, $2, $3, $4, $5)",
 			identityNumber, name, employeeImageUri, gender, departmentId)
@@ -28,8 +27,6 @@ func CreateEmployee(identityNumber, name, employeeImageUri, gender, departmentId
 		return nil, fmt.Errorf("failed to create employee: %v", err)
 	}
 
-	// Kembalikan employee yang baru saja dibuat (misalnya ID didapat dari insert)
-	// Anda bisa mengambil ID baru setelah insert untuk mengisi ID yang benar
 	return &model.Employee{
 		ID:               0, // ID baru akan didapatkan setelah INSERT
 		IdentityNumber:   identityNumber,

@@ -47,6 +47,11 @@ func GetDepartments(c *gin.Context) {
 		offset = 0
 	}
 
+	// Menambahkan wildcard % untuk prefix dan suffix matching
+	if nameFilter != "" {
+		nameFilter = "%" + nameFilter + "%"
+	}
+
 	departments, err := service.GetDepartments(limit, offset, nameFilter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
@@ -54,4 +59,36 @@ func GetDepartments(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, departments)
+}
+
+func PatchDepartment(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id: " + idParam})
+		return
+	}
+
+	var dept model.Department
+	if err := c.ShouldBindJSON(&dept); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Validasi nama department
+	err = utils.ValidateDepartment(dept.Name)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation error: " + err.Error()})
+		return
+	}
+
+	// Panggil service untuk update department
+	updatedDepartment, err := service.PatchDepartment(id, dept)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update department: " + err.Error()})
+		return
+	}
+
+	// Response sukses
+	c.JSON(http.StatusOK, updatedDepartment)
 }

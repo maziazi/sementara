@@ -32,7 +32,6 @@ func GenerateToken(email string, userId uint) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-// JWTAuthMiddleware memvalidasi token JWT
 func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -57,11 +56,8 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("✅ Parsed claims:", claims)
-		fmt.Println("aa", claims["email"].(string))
-		// Ambil email dari token dan simpan di context
 		if userID, ok := claims["userID"].(float64); ok {
-			c.Set("userID", int(userID)) // Konversi ke int sebelum disimpan
+			c.Set("userID", int(userID))
 		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token payload"})
 			c.Abort()
