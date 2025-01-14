@@ -41,7 +41,7 @@ func AuthHandler(c *gin.Context) {
 		}
 
 		token, _ := middleware.GenerateToken(user.Email, user.ID)
-		c.JSON(http.StatusOK, gin.H{"email": user.Email, "userID": user.ID, "token": token})
+		c.JSON(http.StatusOK, gin.H{"email": user.Email, "token": token})
 		return
 	}
 
