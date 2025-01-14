@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDataSourceStorage">
+    <option name="dataSources">
+      <list>
+        <State>
+          <option name="id" value="dab74519-be7f-4898-821f-ee0925641359" />
+          <option name="name" value="company_db (DDL)" />
+          <option name="dbmsName" value="POSTGRES" />
+          <option name="urls">
+            <array>
+              <option value="file://$PROJECT_DIR$/public/department_departement_id_seq.sql" />
+              <option value="file://$PROJECT_DIR$/public/department.sql" />
+              <option value="file://$PROJECT_DIR$/public/employees.sql" />
+              <option value="file://$PROJECT_DIR$/public/file.sql" />
+              <option value="file://$PROJECT_DIR$/public/manager.sql" />
+            </array>
+          </option>
+          <option name="outPath" value="C:\Users\muhaf\Documents\Kuliah\SS\GoSprint\v1" />
+          <option name="outLayout" value="File per object by schema.groovy" />
+          <option name="scriptOptions">
+            <map>
+              <entry key="CreateOrReplace" value="1" />
+            </map>
+          </option>
+        </State>
+      </list>
+    </option>
+  </component>
+</project>

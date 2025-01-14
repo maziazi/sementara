@@ -92,3 +92,30 @@ func PatchDepartment(c *gin.Context) {
 	// Response sukses
 	c.JSON(http.StatusOK, updatedDepartment)
 }
+
+func DeleteDepartmentHandler(c *gin.Context) {
+	// Mendapatkan parameter ID dari URL
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id: " + idParam})
+		return
+	}
+
+	// Panggil service untuk menghapus department
+	err = service.DeleteDepartment(id)
+	if err != nil {
+		// Menangani error berdasarkan tipe error
+		if err.Error() == "department not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Department not found"})
+		} else if err.Error() == "department has employees" {
+			c.JSON(http.StatusConflict, gin.H{"error": "Department still contains employees"})
+		} else {
+			// Error server umum
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete department: " + err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Department deleted successfully"})
+}

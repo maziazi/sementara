@@ -6,5 +6,5 @@ type Employee struct {
 	Name             string `json:"name"`
 	EmployeeImageURI string `json:"employeeImageUri"`
 	Gender           string `json:"gender"`
-	DepartmentID     string `json:"departmentId"`
+	DepartmentID     int    `json:"departmentId"` // Ubah ke int
 }

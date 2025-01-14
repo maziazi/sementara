@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"project_sprint/internal/model"
 	"project_sprint/internal/utils"
@@ -78,18 +79,36 @@ func PatchDepartment(id int, dept model.Department) (*model.Department, error) {
 	return &updatedDept, nil
 }
 
-//func IsDepartmentValid(departmentId string) bool {
-//	db := database.GetDBPool()
-//
-//	var departmentName string
-//	// Melakukan query untuk mencari department dengan ID yang diberikan
-//	err := db.QueryRow(context.Background(), "SELECT name FROM department WHERE department_id = $1", departmentId).Scan(&departmentName)
-//
-//	// Jika department ditemukan (query berhasil), maka departmentId valid
-//	if err == nil {
-//		return true
-//	}
-//
-//	// Jika department tidak ditemukan (query gagal), maka departmentId tidak valid
-//	return false
-//}
+func DeleteDepartment(id int) error {
+	// Cek apakah department ada di database
+	var departmentName string
+	err := database.GetDBPool().QueryRow(context.Background(), `SELECT name FROM department WHERE department_id = $1`, id).Scan(&departmentName)
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			// Department tidak ditemukan
+			return fmt.Errorf("department not found")
+		}
+		// Error lain saat query
+		return err
+	}
+
+	// Cek apakah department masih memiliki employees
+	var employeeCount int
+	err = database.GetDBPool().QueryRow(context.Background(), `SELECT COUNT(*) FROM employees WHERE departement_id = $1`, id).Scan(&employeeCount)
+	if err != nil {
+		return err
+	}
+
+	// Jika masih ada employees yang terkait dengan department
+	if employeeCount > 0 {
+		return fmt.Errorf("department has employees")
+	}
+
+	// Hapus department dari database
+	_, err = database.GetDBPool().Exec(context.Background(), `DELETE FROM department WHERE department_id = $1`, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

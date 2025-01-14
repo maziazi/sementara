@@ -22,5 +22,6 @@ func RegisterDepartmentRoutes(router *gin.RouterGroup) {
 	{
 		protected.POST("/", handler.CreateDepartmentHandler)
 		protected.PATCH("/:id", handler.PatchDepartment)
+		protected.DELETE("/:id", handler.DeleteDepartmentHandler)
 	}
 }
