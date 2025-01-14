@@ -2,10 +2,10 @@ package model
 
 import "time"
 
-type Managers struct {
+type Manager struct {
 	ID              uint      `json:"id"`
 	Email           string    `json:"email"`
-	Password        string    `json:"-"` // Jangan kembalikan password di response
+	Password        string    `json:"-"`
 	CreatedAt       time.Time `json:"created_at"`
 	Name            string    `json:"name"`
 	CompanyName     string    `json:"company_name"`

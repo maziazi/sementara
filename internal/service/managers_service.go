@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"project_sprint/internal/model"
@@ -13,10 +12,10 @@ import (
 	"time"
 )
 
-func RegisterUser(email, password string) (*model.Managers, error) {
+func RegisterUser(email, password string) (*model.Manager, error) {
 	db := database.GetDBPool()
 
-	var existingUser model.Managers
+	var existingUser model.Manager
 	err := db.QueryRow(context.Background(), "SELECT email FROM manager WHERE email = $1", email).Scan(&existingUser.Email)
 	if err == nil {
 		return nil, errors.New("email already exists")
@@ -33,13 +32,13 @@ func RegisterUser(email, password string) (*model.Managers, error) {
 		return nil, fmt.Errorf("failed to register user: %v", err)
 	}
 
-	return &model.Managers{Email: email, CreatedAt: time.Now()}, nil
+	return &model.Manager{Email: email, CreatedAt: time.Now()}, nil
 }
 
-func AuthenticateManager(email, password string) (*model.Managers, error) {
+func AuthenticateManager(email, password string) (*model.Manager, error) {
 	db := database.GetDBPool()
 
-	var user model.Managers
+	var user model.Manager
 	err := db.QueryRow(context.Background(), "SELECT id, email, password FROM manager WHERE email = $1", email).
 		Scan(&user.ID, &user.Email, &user.Password)
 
@@ -60,10 +59,10 @@ func AuthenticateManager(email, password string) (*model.Managers, error) {
 
 	return &user, nil
 }
-func GetUserProfile(userID int) (*model.Managers, error) {
+func GetUserProfile(userID int) (*model.Manager, error) {
 	db := database.GetDBPool()
 
-	var user model.Managers
+	var user model.Manager
 	err := db.QueryRow(context.Background(), "SELECT id, email, column_name, manager_image_uri, company_name, company_image_uri FROM manager WHERE id = $1", userID).
 		Scan(&user.ID, &user.Email, &user.Name, &user.ManagerImageURI, &user.CompanyName, &user.CompanyImageURI)
 
@@ -73,11 +72,11 @@ func GetUserProfile(userID int) (*model.Managers, error) {
 
 	return &user, nil
 }
-func UpdateUserProfile(userID int, email, name, userImageUri, companyName, companyImageUri *string) (*model.Managers, error) {
+func UpdateUserProfile(userID int, email, name, userImageUri, companyName, companyImageUri *string) (*model.Manager, error) {
 	db := database.GetDBPool()
 
 	// Ambil data lama dulu
-	var oldUser model.Managers
+	var oldUser model.Manager
 	err := db.QueryRow(context.Background(), "SELECT id, email, column_name, manager_image_uri, company_name, company_image_uri FROM manager WHERE id = $1", userID).
 		Scan(&oldUser.ID, &oldUser.Email, &oldUser.Name, &oldUser.ManagerImageURI, &oldUser.CompanyName, &oldUser.CompanyImageURI)
 
@@ -134,7 +133,7 @@ func UpdateUserProfile(userID int, email, name, userImageUri, companyName, compa
 	}
 
 	// Ambil kembali data yang sudah diperbarui
-	var updatedUser model.Managers
+	var updatedUser model.Manager
 	err = db.QueryRow(context.Background(), "SELECT id, email, column_name, manager_image_uri, company_name, company_image_uri FROM manager WHERE id = $1", userID).
 		Scan(&updatedUser.ID, &updatedUser.Email, &updatedUser.Name, &updatedUser.ManagerImageURI, &updatedUser.CompanyName, &updatedUser.CompanyImageURI)
 
